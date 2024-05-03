@@ -1,0 +1,9 @@
+resolve:
+  http:
+    headers:
+      - matches: https://api.factsmgt.com/**
+        name: Ocp-Apim-Subscription-Key
+        envVariable: FACTS_SUBSCRIPTION_KEY
+      - matches: https://api.factsmgt.com/**
+        name: Facts-Api-Key
+        envVariable: FACTS_API_KEY

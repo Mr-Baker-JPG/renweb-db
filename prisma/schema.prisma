@@ -1,0 +1,1109 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Address {
+  addressID           Int       @id
+  address1            String?
+  address2            String?
+  city                String?
+  state               String?
+  zip                 String?
+  country             String?
+  modifiedBy          Int?
+  modifiedDate        DateTime?
+  greeting1           String?
+  greeting2           String?
+  greeting3           String?
+  greeting4           String?
+  greeting5           String?
+  newStudentInquiryID Int?
+  Person              Person[]
+}
+
+model AdvisingNote {
+  note         String?
+  date         DateTime?
+  studentId    Int?
+  modifiedBy   Int?
+  modifiedDate DateTime?
+  noteId       Int       @id
+  StudentModel Student?  @relation(fields: [studentId], references: [studentId], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model Alert {
+  alertID          Int                @id
+  studentID        Int?
+  title            String?
+  description      String?
+  active           Boolean            @default(false)
+  StudentModel     Student?           @relation(fields: [studentID], references: [studentId], onDelete: NoAction, onUpdate: NoAction)
+  AlertApplication AlertApplication[]
+}
+
+model AlertApplication {
+  alertID       Int
+  applicationID Int     @id
+  visual        Boolean @default(false)
+  beep          Boolean @default(false)
+  popUp         Boolean @default(false)
+  popUpAlways   Boolean @default(false)
+  Alert         Alert   @relation(fields: [alertID], references: [alertID], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model AnswerBaseModel {
+  boolValue  Int?
+  textValue  String?
+  dateValue  DateTime?
+  intValue   Int?
+  listValues Unsupported("json")?
+
+  @@ignore
+}
+
+model AssignmentCategoryModel {
+  sisCategoryId   Int               @id
+  classCategoryId Int
+  weight          Decimal?
+  classId         Int
+  title           String?
+  description     String?
+  meetsInTerm1    Int?
+  meetsInTerm2    Int?
+  meetsInTerm3    Int?
+  meetsInTerm4    Int?
+  meetsInTerm5    Int?
+  meetsInTerm6    Int?
+  drop            Int?
+  Class           Class             @relation(fields: [classCategoryId], references: [classId], onDelete: NoAction, onUpdate: NoAction)
+  AssignmentModel AssignmentModel[]
+}
+
+model AssignmentGradesModel {
+  sisGradeId      Int             @id
+  sisAssignmentId Int
+  studentId       Int
+  maxPoints       Decimal
+  receivedPoints  Decimal
+  curvePoints     Decimal
+  penaltyPoints   Decimal
+  bonusPoints     Decimal
+  notes           String
+  weight          Decimal
+  status          String
+  emailSent       Int
+  displayGrade    String
+  StudentModel    Student         @relation(fields: [studentId], references: [studentId], onDelete: NoAction, onUpdate: NoAction)
+  AssignmentModel AssignmentModel @relation(fields: [sisAssignmentId], references: [sisAssignmentId], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model AssignmentModel {
+  sisAssignmentId         Int                     @id
+  classCategoryId         Int
+  classId                 Int
+  classAssignmentId       Int
+  title                   String
+  description             String
+  dateAssigned            DateTime
+  dateDue                 DateTime
+  assignmentNumber        Int
+  maxPoints               Decimal
+  weight                  Decimal
+  extraCreditType         Int
+  modifiedBy              Int
+  modifiedDate            DateTime
+  publish                 Int
+  calculate               Int
+  markedAsTest            Int
+  isLmsAssignment         Int
+  lmsItemId               Int
+  lmsItemTypeId           Int
+  descriptionHtml         String
+  dateAssignedUtc         DateTime
+  dateDueUtc              DateTime
+  systemOfRecord          String
+  googleAssignmentId      String
+  AssignmentGradesModel   AssignmentGradesModel[]
+  Class                   Class                   @relation(fields: [classId], references: [classId], onDelete: NoAction, onUpdate: NoAction)
+  AssignmentCategoryModel AssignmentCategoryModel @relation(fields: [classCategoryId], references: [sisCategoryId], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model BehaviorEvents {
+  dateOfIncident        DateTime?
+  descriptionOfIncident String?
+  history               String?
+  sanction1             String?
+  sanction2             String?
+  sanctionDate1         DateTime?
+  sanctionDate2         DateTime?
+  violation             String?
+  reportedBy            String?
+  reviewedBy            String?
+  status                String?
+  studentID             Int?
+  demerits              Decimal?
+  modifiedBy            Int?
+  modifiedDate          DateTime?
+  staffID               Int?
+  level                 Int?
+  type                  Int?
+  notified              Int?
+  disciplineID          Int       @id
+  Staff                 Staff?    @relation(fields: [staffID], references: [staffId], onDelete: NoAction, onUpdate: NoAction)
+  StudentModel          Student?  @relation(fields: [studentID], references: [studentId], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model Class {
+  aideId                                   Int?
+  closed                                   Int?
+  color                                    String?
+  colorText                                String?
+  courseID                                 Int
+  googleCourseId                           String?
+  legacyClassId                            String?
+  linkedClassId                            Int?
+  maleFemale                               String?
+  modifiedBy                               Int?
+  modifiedDate                             DateTime?
+  name                                     String?
+  pattern                                  Int?
+  requiredRoom                             Int?
+  section                                  String?
+  staffId                                  Int?
+  term1                                    Int
+  term2                                    Int
+  term3                                    Int
+  term4                                    Int
+  term5                                    Int
+  term6                                    Int
+  yearId                                   Int?
+  secondaryStaffId                         Int?
+  classId                                  Int                                        @id
+  AssignmentCategoryModel                  AssignmentCategoryModel[]
+  AssignmentModel                          AssignmentModel[]
+  Class                                    Class                                      @relation("ClassToClass", fields: [classId], references: [classId], onDelete: NoAction, onUpdate: NoAction)
+  other_Class                              Class?                                     @relation("ClassToClass")
+  SchoolYearModel                          SchoolYearModel?                           @relation(fields: [yearId], references: [yearId], onDelete: NoAction, onUpdate: NoAction)
+  Staff_Class_aideIdToStaff                Staff?                                     @relation("Class_aideIdToStaff", fields: [aideId], references: [staffId], onDelete: NoAction, onUpdate: NoAction)
+  Staff_Class_secondaryStaffIdToStaff      Staff?                                     @relation("Class_secondaryStaffIdToStaff", fields: [secondaryStaffId], references: [staffId], onDelete: NoAction, onUpdate: NoAction)
+  Staff_Class_staffIdToStaff               Staff?                                     @relation("Class_staffIdToStaff", fields: [staffId], references: [staffId], onDelete: NoAction, onUpdate: NoAction)
+  Courses                                  Courses                                    @relation(fields: [courseID], references: [courseID], onDelete: NoAction, onUpdate: NoAction)
+  ClassAssignmentGradeCodeTranslationModel ClassAssignmentGradeCodeTranslationModel[]
+  ClassEnrollment                          ClassEnrollment[]
+}
+
+model ClassAssignmentGradeCodeTranslationModel {
+  id         Int     @id
+  classId    Int
+  letterCode String
+  percent    Decimal
+  statusCode String
+  Class      Class   @relation(fields: [classId], references: [classId], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model ClassEnrollment {
+  altYearId       Int?
+  classId         Int
+  enrolled        Int
+  enrolled1       Int?
+  enrolled2       Int?
+  enrolled3       Int?
+  enrolled4       Int?
+  enrolled5       Int?
+  enrolled6       Int?
+  gradeLevel      String?
+  modifiedBy      Int?
+  modifiedDate    DateTime?
+  studentId       Int
+  SchoolYearModel SchoolYearModel? @relation(fields: [altYearId], references: [yearId], onDelete: NoAction, onUpdate: NoAction)
+  StudentModel    Student          @relation(fields: [studentId], references: [studentId], onDelete: NoAction, onUpdate: NoAction)
+  Class           Class            @relation(fields: [classId], references: [classId], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([classId, studentId])
+}
+
+model ConditionalRequirementModel {
+  triggerQuestionId Int                  @id
+  options           Unsupported("json")?
+}
+
+model Conference {
+  date           DateTime?
+  studentId      Int?
+  reason         String?
+  problem        String?
+  staffID        Int?
+  subject        String?
+  recommendation String?
+  parent         String?
+  location       String?
+  modifiedBy     Int?
+  modifiedDate   DateTime?
+  reason1        Int?
+  reason2        Int?
+  reason3        Int?
+  problem1       Int?
+  problem2       Int?
+  problem3       Int?
+  problem4       Int?
+  problem5       Int?
+  problem6       Int?
+  problem7       Int?
+  problem8       Int?
+  problem9       Int?
+  problem10      Int?
+  conferenceId   Int       @id
+  Staff          Staff?    @relation(fields: [staffID], references: [staffId], onDelete: NoAction, onUpdate: NoAction)
+  StudentModel   Student?  @relation(fields: [studentId], references: [studentId], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model Congregation {
+  congregationId     Int     @id
+  congregationName   String?
+  congregationCity   String?
+  congregationPhone  String?
+  congregationState  String?
+  congregationStreet String?
+  congregationZip    String?
+  seniorPastor       String?
+  youthPastor        String?
+}
+
+model Courses {
+  levelID        Int?
+  legacyCourseID String?
+  title          String?
+  abbreviation   String?
+  activity       Int
+  attendance     Int
+  homeRoom       Int
+  schoolCode     String?
+  department     String?
+  active         Int?
+  elective       Int?
+  hs             Int?
+  preSchool      Int?
+  elementary     Int?
+  middleSchool   Int?
+  modifiedBy     Int?
+  modifiedDate   DateTime?
+  courseType     String?
+  defaultStaffID Int?
+  departmentID   Int?
+  description    String?
+  stateID        String?
+  maxSize        Int?
+  courseID       Int       @id
+  Class          Class[]
+  Staff          Staff?    @relation(fields: [defaultStaffID], references: [staffId], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model CreateInquiryFormCommand {
+  requestId    Int     @id
+  studentId    Int
+  StudentModel Student @relation(fields: [studentId], references: [studentId], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model CustomAnswerModel {
+  boolValue           Int?
+  textValue           String?
+  dateValue           DateTime?
+  intValue            Int?
+  listValues          Unsupported("json")?
+  questionId          Int
+  originalAnswerLabel String?
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model CustomQuestionAnswerModel {
+  question String?
+  answer   String?
+
+  @@ignore
+}
+
+model CustomQuestionModel {
+  label                  String?
+  columns                Int?
+  questionAnswerType     String
+  requirementType        String
+  options                Unsupported("json")?
+  id                     Int                  @id
+  fullText               String?
+  requestLevel           String
+  sortOrder              Int
+  eventId                Int?
+  isConditional          Int
+  conditionalRequirement String?
+}
+
+model DefinedListsModel {
+  type          String?
+  name          String?
+  definedListId Int     @id
+  schoolCode    String?
+}
+
+model DirectoryPreferences {
+  id             Int    @id @default(autoincrement())
+  blockName      Int?
+  blockCellPhone Int?
+  blockHomePhone Int?
+  blockAddress   Int?
+  blockEmail     Int?
+  personId       Int
+  Person         Person @relation(fields: [personId], references: [personId], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model Education {
+  personId       Int
+  degreeSchool   String?
+  degreeName     String?
+  degreeYear     String?
+  educationLevel Int?
+  degreeType     String?
+  educationId    Int     @id
+  Person         Person  @relation(fields: [personId], references: [personId], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model EmergencyContact {
+  emergencyContactID Int      @id
+  firstName          String?
+  lastName           String?
+  middleName         String?
+  salutation         String?
+  suffix             String?
+  homePhone          String?
+  cellPhone          String?
+  email              String?
+  relationship       String?
+  workPhone          String?
+  studentID          Int?
+  sortOrder          Int?
+  refID              Int?
+  note               String?
+  countryCode        String?
+  portalSortOrder    Int
+  Person             Person?  @relation(fields: [refID], references: [personId], onDelete: NoAction, onUpdate: NoAction)
+  StudentModel       Student? @relation(fields: [studentID], references: [studentId], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model EnrollmentHistory {
+  beginDate           DateTime?
+  endDate             DateTime?
+  gradeLevel          String?
+  note                String?
+  schoolCode          String?
+  status              String?
+  studentId           Int
+  yearId              Int?
+  enrollmentHistoryId Int              @id
+  SchoolYearModel     SchoolYearModel? @relation(fields: [yearId], references: [yearId], onDelete: NoAction, onUpdate: NoAction)
+  StudentModel        Student          @relation(fields: [studentId], references: [studentId], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model Error {
+  id         Int                  @id @default(autoincrement())
+  code       String
+  message    String
+  target     String?
+  details    Unsupported("json")?
+  innererror String?
+}
+
+model ErrorResponse {
+  id    Int    @id @default(autoincrement())
+  error String
+}
+
+model Family {
+  familyName               String?
+  enableWeb                Boolean        @default(false)
+  unlisted                 Boolean        @default(false)
+  note                     String?
+  modifiedBy               Int?
+  modifiedDate             DateTime?
+  familyNameBP             String?
+  parentsWebFinancialBlock Boolean        @default(false)
+  familyID                 Int            @id
+  PersonFamily             PersonFamily[]
+
+  @@map("FamilyConfig")
+}
+
+model Honors {
+  calcMethod   String?
+  gradeLevel   String?
+  honorName    String?
+  honorRollId  Int?
+  maxClass     Decimal
+  minAvg       Decimal
+  minClass     Decimal
+  minCredits   Decimal
+  modifiedBy   Int?
+  modifiedDate DateTime?
+  schoolCode   String?
+  sequence     Int
+  timeFrame    Int
+  honorId      Int       @id
+}
+
+model InquiryFormEditModel {
+  id              Int                  @id @default(autoincrement())
+  standardAnswers Unsupported("json")?
+  customAnswers   Unsupported("json")?
+}
+
+model InquiryFormModel {
+  id                 Int                  @id @default(autoincrement())
+  requestId          Int?
+  studentId          Int?
+  schoolCode         String?
+  schoolOptions      Unsupported("json")?
+  standard           Unsupported("json")?
+  custom             Unsupported("json")?
+  interestCategories Unsupported("json")?
+  StudentModel       Student?             @relation(fields: [studentId], references: [studentId], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model InterestCategory {
+  category           String?
+  districtWide       Int?
+  type               Int?
+  sortOrder          Int?
+  onlineApplication  Int?
+  schoolCode         String?
+  active             Int?
+  interestCategoryID Int             @id
+  InterestItems      InterestItems[]
+}
+
+model InterestCategoryModel {
+  id          Int                  @id
+  description String?
+  sortOrder   Int
+  interestIds Unsupported("json")?
+}
+
+model InterestItems {
+  interest           String?
+  interestCategoryID Int?
+  sortOrder          Int?
+  active             Int?
+  interestID         Int               @id
+  InterestCategory   InterestCategory? @relation(fields: [interestCategoryID], references: [interestCategoryID], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model ListOptionModel {
+  id        Int     @id @default(autoincrement())
+  display   String?
+  keyValue  Int?
+  textValue String?
+  sortOrder Int?
+  filter    String?
+}
+
+model ListValueModel {
+  id        Int     @id @default(autoincrement())
+  keyValue  Int?
+  textValue String?
+}
+
+model LockerModel {
+  locker             String?
+  lockerGroupId      Int?
+  schoolCode         String?
+  combination1       String?
+  combination2       String?
+  combination3       String?
+  combination4       String?
+  combination5       String?
+  note               String?
+  outOfService       Boolean   @default(false)
+  currentCombination Int?
+  lockerId           Int       @id
+  configSchoolId     Int
+  Student            Student[]
+}
+
+model LockerRequest {
+  id                 Int     @id @default(autoincrement())
+  locker             String?
+  lockerGroupId      Int?
+  schoolCode         String?
+  combination1       String?
+  combination2       String?
+  combination3       String?
+  combination4       String?
+  combination5       String?
+  note               String?
+  outOfService       Int?
+  currentCombination Int?
+}
+
+model Note {
+  enteredById                    Int
+  noteDate                       DateTime?
+  noteType                       String
+  personId                       Int
+  note                           String?
+  yearId                         Int?
+  noteId                         Int              @id
+  modifiedById                   Int
+  SchoolYearModel                SchoolYearModel? @relation(fields: [yearId], references: [yearId], onDelete: NoAction, onUpdate: NoAction)
+  Staff_Note_modifiedByIdToStaff Staff            @relation("Note_modifiedByIdToStaff", fields: [modifiedById], references: [staffId], onDelete: NoAction, onUpdate: NoAction)
+  Person                         Person           @relation(fields: [personId], references: [personId], onDelete: NoAction, onUpdate: NoAction)
+  Staff_Note_enteredByIdToStaff  Staff            @relation("Note_enteredByIdToStaff", fields: [enteredById], references: [staffId], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model ParentAlertEntity {
+  id                    String
+  personId              Int     @id
+  parentAlertPreference String?
+  parentAlertHomePhone  Int?
+  parentAlertCellPhone  Int?
+  parentAlertWorkPhone  Int?
+  parentAlertNoText     Int?
+  Person                Person  @relation(fields: [personId], references: [personId], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model ParentStudent {
+  parentID         Int
+  studentID        Int
+  custody          Int?
+  correspondence   Int?
+  relationship     String?
+  grandparent      Int?
+  emergencyContact Int?
+  reportCard       Int?
+  pwBlock          Int?
+  pickUp           Int?
+  parentsWeb       Int?
+  reEnroll         Int?
+  StudentModel     Student @relation(fields: [studentID], references: [studentId], onDelete: NoAction, onUpdate: NoAction)
+  Person           Person  @relation(fields: [parentID], references: [personId], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([parentID, studentID])
+}
+
+model Person {
+  personId                   Int                         @id
+  firstName                  String?
+  lastName                   String?
+  middleName                 String?
+  nickName                   String?
+  salutation                 String?
+  suffix                     String?
+  email                      String?
+  email2                     String?
+  username                   String?
+  homePhone                  String?
+  cellPhone                  String?
+  addressID                  Int?
+  deceased                   Boolean
+  modifiedDate               DateTime?
+  DirectoryPreferences       DirectoryPreferences[]
+  Education                  Education[]
+  EmergencyContact           EmergencyContact[]
+  Note                       Note[]
+  ParentAlertEntity          ParentAlertEntity?
+  ParentStudent              ParentStudent[]
+  Address                    Address?                    @relation(fields: [addressID], references: [addressID], onDelete: NoAction, onUpdate: NoAction)
+  PersonDemographic          PersonDemographic?
+  PersonFamily               PersonFamily[]
+  PersonInterest             PersonInterest?
+  PersonReligionEntity       PersonReligionEntity[]
+  PersonVehicleEntity        PersonVehicleEntity[]
+  PersonWorkEntity           PersonWorkEntity[]
+  PickupContact              PickupContact[]
+  PublicSchool               PublicSchool[]
+  ReligiousEvent             ReligiousEvent[]
+  ServiceHoursModel          ServiceHoursModel[]
+  StaffObservations          StaffObservations[]
+  Staff                      Staff?                      @relation("personStaff")
+  Student                    Student?                    @relation("student_person", name: "student_person")
+  StudentPreProgressionModel StudentPreProgressionModel?
+  StudentServiceHoursModel   StudentServiceHoursModel[]
+}
+
+model PersonDemographic {
+  personId        Int       @id
+  gender          String?
+  birthdate       DateTime?
+  ethnicity       String?
+  citizenship     String?
+  maritalStatus   String?
+  primaryLanguage String?
+  birthplace      String?
+  birthCity       String?
+  birthState      String?
+  birthCountry    String?
+  Person          Person    @relation(fields: [personId], references: [personId], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model PersonFamily {
+  personId                       Int
+  familyId                       Int
+  parent                         Boolean @default(false)
+  student                        Boolean @default(false)
+  financialResponsibility        Boolean @default(false)
+  financialResponsibilityPercent String?
+  familyOrder                    Int?
+  factsCustomer                  Boolean @default(false)
+  Family                         Family  @relation(fields: [familyId], references: [familyID], onDelete: NoAction, onUpdate: NoAction)
+  Person                         Person  @relation(fields: [personId], references: [personId], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([personId, familyId])
+}
+
+model PersonInterest {
+  personID Int     @id
+  interest String?
+  Person   Person  @relation(fields: [personID], references: [personId], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model PersonReligionEntity {
+  personId                   Int     @id
+  denomination               String?
+  congregationId             Int?
+  baptismCongregation        String?
+  baptismCity                String?
+  baptismState               String?
+  baptismDate                String?
+  communionCongregation      String?
+  communionCity              String?
+  communionState             String?
+  communionDate              String?
+  confirmationCongregation   String?
+  confirmationCity           String?
+  confirmationState          String?
+  confirmationDate           String?
+  reconciliationCongregation String?
+  reconciliationCity         String?
+  reconciliationState        String?
+  reconciliationDate         String?
+  barMitzvahCongregation     String?
+  barMitzvahCity             String?
+  barMitzvahState            String?
+  barMitzvahDate             String?
+  localChurchMember          Boolean @default(false)
+  Person                     Person  @relation(fields: [personId], references: [personId], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model PersonVehicleEntity {
+  id             String
+  personId       Int     @id
+  autoMake       String?
+  autoModel      String?
+  autoLicense    String?
+  driversLicense String?
+  permitNumber   String?
+  Person         Person  @relation(fields: [personId], references: [personId], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model PersonWorkEntity {
+  id                   String
+  personId             Int     @id
+  occupation           String?
+  company              String?
+  jobCategory          String?
+  workStreet           String?
+  workFax              String?
+  workPhone            String?
+  workPhoneExtension   String?
+  workCity             String?
+  workState            String?
+  workZip              String?
+  matchingGiftEmployer Boolean @default(false)
+  Person               Person  @relation(fields: [personId], references: [personId], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model PickupContact {
+  cellPhone       String?
+  countryCode     String?
+  email           String?
+  firstName       String?
+  homePhone       String?
+  lastName        String?
+  middleName      String?
+  note            String?
+  portalSortOrder Int
+  refId           Int?
+  relationship    String?
+  salutation      String?
+  studentId       Int
+  suffix          String?
+  workPhone       String?
+  pickupId        Int     @id
+  Person          Person? @relation(fields: [refId], references: [personId], onDelete: NoAction, onUpdate: NoAction)
+  StudentModel    Student @relation(fields: [studentId], references: [studentId], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model ProblemDetails {
+  id         Int                 @id @default(autoincrement())
+  type       String?
+  title      String?
+  status     Int?
+  detail     String?
+  instance   String?
+  extensions Unsupported("json")
+}
+
+model ProfileImage {
+  id    Int     @id @default(autoincrement())
+  value String?
+}
+
+model PublicSchool {
+  id                      Int     @id @default(autoincrement())
+  personId                Int
+  publicSchoolDistrict    String?
+  publicSchoolCounty      String?
+  publicSchoolState       String?
+  publicSchoolLocalSchool String?
+  publicSchoolCode        String?
+  Person                  Person  @relation(fields: [personId], references: [personId], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model QuestionBaseModel {
+  id                 Int                  @id @default(autoincrement())
+  label              String?
+  columns            Int?
+  questionAnswerType String
+  requirementType    String
+  options            Unsupported("json")?
+}
+
+model ReligiousEvent {
+  personId           Int?
+  religiousEventDate DateTime?
+  religiousEventType String?
+  location           String?
+  city               String?
+  state              String?
+  note               String?
+  religiousEventId   Int       @id
+  Person             Person?   @relation(fields: [personId], references: [personId], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model SchoolConfig {
+  fax                     String?
+  phone                   String?
+  active                  Boolean                   @default(false)
+  address                 String?
+  city                    String?
+  configSchoolID          Int                       @id
+  defaultTermId           Int?
+  defaultYearId           Int?
+  districtName            String?
+  email                   String?
+  modifiedBy              Int?
+  modifiedDate            DateTime?
+  nextYearId              Int?
+  parentAlert             Boolean                   @default(false)
+  pwTermID                Int?
+  pwTermID2               Int?
+  pwYearID                Int?
+  schoolCode              String?                   @unique(map: "sqlite_autoindex_SchoolConfig_2")
+  schoolLMS               Boolean                   @default(false)
+  schoolName              String?
+  state                   String?
+  zip                     String?
+  PwYear                  SchoolYearModel?          @relation("SchoolConfig_pwYearIDToSchoolYearModel", fields: [pwYearID], references: [yearId], onDelete: NoAction, onUpdate: NoAction)
+  // PwTerm2                                                SchoolTerms[]              @relation("SchoolConfig_pwTermID2ToSchoolTerms", fields: [pwTermID2], references: [uniqueTermID], onDelete: NoAction, onUpdate: NoAction)
+  // PwTerm                                                 SchoolTerms[]              @relation("SchoolConfig_pwTermIDToSchoolTerms", fields: [pwTermID], references: [uniqueTermID], onDelete: NoAction, onUpdate: NoAction)
+  NextYear                SchoolYearModel?          @relation("SchoolConfig_nextYearIdToSchoolYearModel", fields: [nextYearId], references: [yearId], onDelete: NoAction, onUpdate: NoAction)
+  DefaultYear             SchoolYearModel?          @relation("SchoolConfig_defaultYearIdToSchoolYearModel", fields: [defaultYearId], references: [yearId], onDelete: NoAction, onUpdate: NoAction)
+  StudentRecognitionModel StudentRecognitionModel[]
+  SubStatusModel          SubStatusModel[]
+  UserDefinedGroupModel   UserDefinedGroupModel[]
+}
+
+model SchoolTerms {
+  termID       Int?
+  yearID       Int?
+  name         String?
+  firstDay     DateTime?
+  lastDay      DateTime?
+  schoolCode   String?
+  semesterID   String?
+  modifiedBy   Int?
+  modifiedDate DateTime?
+  uniqueTermID Int               @id
+  SchoolYear   SchoolYearModel[] @relation("SchoolYear_Term")
+  // SchoolConfig_SchoolConfig_pwTermID2ToSchoolTerms     SchoolConfig[]  @relation("SchoolConfig_pwTermID2ToSchoolTerms")
+  // SchoolConfig_SchoolConfig_pwTermIDToSchoolTerms      SchoolConfig[]  @relation("SchoolConfig_pwTermIDToSchoolTerms")
+  // SchoolConfig_SchoolConfig_defaultTermIdToSchoolTerms SchoolConfig[]  @relation("SchoolConfig_defaultTermIdToSchoolTerms")
+  // SchoolConfig_SchoolTerms_schoolCodeToSchoolConfig    SchoolConfig?   @relation("SchoolTerms_schoolCodeToSchoolConfig", fields: [schoolCode], references: [schoolCode], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model SchoolYearModel {
+  yearName                                                 String?
+  allowInquiry                                             Boolean                   @default(false)
+  blockAcademicYear                                        Boolean                   @default(false)
+  yearId                                                   Int                       @id
+  firstDay                                                 DateTime?
+  lastDay                                                  DateTime?
+  schoolCode                                               String?
+  Class                                                    Class[]
+  ClassEnrollment                                          ClassEnrollment[]
+  EnrollmentHistory                                        EnrollmentHistory[]
+  Note                                                     Note[]
+  SchoolConfig_SchoolConfig_pwYearIDToSchoolYearModel      SchoolConfig[]            @relation("SchoolConfig_pwYearIDToSchoolYearModel")
+  SchoolConfig_SchoolConfig_nextYearIdToSchoolYearModel    SchoolConfig[]            @relation("SchoolConfig_nextYearIdToSchoolYearModel")
+  SchoolConfig_SchoolConfig_defaultYearIdToSchoolYearModel SchoolConfig[]            @relation("SchoolConfig_defaultYearIdToSchoolYearModel")
+  SchoolTerms                                              SchoolTerms[]             @relation("SchoolYear_Term")
+  ServiceHoursModel                                        ServiceHoursModel[]
+  StudentRecognitionModel                                  StudentRecognitionModel[]
+}
+
+model ServiceHoursModel {
+  serviceHoursId           Int                        @id
+  personId                 Int?
+  description              String?
+  hours                    Decimal?
+  date                     DateTime?
+  note                     String?
+  verifiedBy               String?
+  createdBy                Int?
+  yearId                   Int?
+  SchoolYearModel          SchoolYearModel?           @relation(fields: [yearId], references: [yearId], onDelete: NoAction, onUpdate: NoAction)
+  Person                   Person?                    @relation(fields: [personId], references: [personId], onDelete: NoAction, onUpdate: NoAction)
+  StudentServiceHoursModel StudentServiceHoursModel[]
+}
+
+model Staff {
+  active                              Boolean                    @default(false)
+  administrator                       Boolean                    @default(false)
+  blockSurvey                         Boolean                    @default(false)
+  districtUser                        Boolean                    @default(false)
+  districtWideUser                    Boolean                    @default(false)
+  dualEnrolledUser                    Boolean                    @default(false)
+  elementary                          Boolean                    @default(false)
+  faculty                             Boolean                    @default(false)
+  fullTime                            Boolean                    @default(false)
+  highSchool                          Boolean                    @default(false)
+  middleSchool                        Boolean                    @default(false)
+  preschool                           Boolean                    @default(false)
+  staffDirectoryBlock                 Boolean                    @default(false)
+  substitute                          Boolean                    @default(false)
+  unsubscribeRenWebEmail              Boolean                    @default(false)
+  endDate                             DateTime?
+  startDate                           DateTime?
+  fte                                 Decimal?
+  financialFamilyId                   Int?
+  pda                                 Int?
+  roomId                              Int?
+  schools                             String?
+  department                          String?
+  firstName                           String?
+  lastName                            String?
+  legacyStaffId                       String?
+  middleName                          String?
+  parentAlertPin                      String?
+  spouse                              String?
+  teacherSite                         String?
+  staffId                             Int                        @id
+  name                                String?
+  BehaviorEvents                      BehaviorEvents[]
+  Class_Class_aideIdToStaff           Class[]                    @relation("Class_aideIdToStaff")
+  Class_Class_secondaryStaffIdToStaff Class[]                    @relation("Class_secondaryStaffIdToStaff")
+  Class_Class_staffIdToStaff          Class[]                    @relation("Class_staffIdToStaff")
+  Conference                          Conference[]
+  Courses                             Courses[]
+  Note_Note_modifiedByIdToStaff       Note[]                     @relation("Note_modifiedByIdToStaff")
+  Note_Note_enteredByIdToStaff        Note[]                     @relation("Note_enteredByIdToStaff")
+  StaffObservations                   StaffObservations[]
+  StudentServiceHoursModel            StudentServiceHoursModel[]
+  Person                              Person                     @relation("personStaff", fields: [staffId], references: [personId])
+}
+
+model StaffObservations {
+  endDate             DateTime?
+  eval                Int?
+  evaluatorId         Int
+  observationConfigId Int
+  personId            Int
+  startDate           DateTime?
+  title               String?
+  observationId       Int       @id
+  Person              Person    @relation(fields: [personId], references: [personId], onDelete: NoAction, onUpdate: NoAction)
+  Staff               Staff     @relation(fields: [evaluatorId], references: [staffId], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model StandardAnswerModel {
+  boolValue  Int?
+  textValue  String?
+  dateValue  DateTime?
+  intValue   Int?
+  listValues Unsupported("json")?
+  id         String               @id
+}
+
+model StandardQuestionAnswerModel {
+  id       Int     @id @default(autoincrement())
+  question String?
+  answer   String?
+}
+
+model StandardQuestionModel {
+  label              String?
+  columns            Int?
+  questionAnswerType String
+  requirementType    String
+  options            Unsupported("json")?
+  id                 String               @id
+}
+
+model StatusModel {
+  id          Int                  @id @default(autoincrement())
+  status      String?
+  displayName String?
+  subStatus   Unsupported("json")?
+}
+
+model StudentLockerModel {
+  id   Int     @id
+  name String?
+}
+
+model Student {
+  studentId                Int                        @id
+  configSchoolId           Int
+  personStudentId          Int
+  schoolCode               String?
+  Lockers                  LockerModel[]
+  AdvisingNote             AdvisingNote[]
+  Alert                    Alert[]
+  AssignmentGradesModel    AssignmentGradesModel[]
+  BehaviorEvents           BehaviorEvents[]
+  ClassEnrollment          ClassEnrollment[]
+  Conference               Conference[]
+  CreateInquiryFormCommand CreateInquiryFormCommand[]
+  EmergencyContact         EmergencyContact[]
+  EnrollmentHistory        EnrollmentHistory[]
+  InquiryFormModel         InquiryFormModel[]
+  ParentStudent            ParentStudent[]
+  PickupContact            PickupContact[]
+  // SchoolConfig             SchoolConfig               @relation("StudentModel_configSchoolIdToSchoolConfig", fields: [configSchoolId], references: [configSchoolID], onDelete: NoAction, onUpdate: NoAction)
+  Person                   Person                     @relation("student_person", name: "student_person", fields: [studentId], references: [personId], onDelete: NoAction, onUpdate: NoAction)
+  // StudentRecognitionModel  StudentRecognitionModel[]  @relation("student_recognition")
+  School                   StudentSchool?             @relation("student_school", name: "student_school", fields: [studentId], references: [personId], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("StudentModel")
+}
+
+model StudentPreProgressionModel {
+  preProgressionStatus          String?
+  preProgressionNextStatus      String?
+  preProgressionGradeLevel      String?
+  preProgressionNextGradeLevel  String?
+  preProgressionSchoolCode      String?
+  preProgressionNextSchoolCode  String?
+  preProgressionProgressionDate DateTime?
+  progressionDate               DateTime?
+  personStudentId               Int       @id
+  Person                        Person    @relation(fields: [personStudentId], references: [personId], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model StudentRecognitionModel {
+  studentId       Int?
+  yearId          Int?
+  recognition     String?
+  note            String?
+  category        String?
+  gradeLevel      String?
+  recognitionId   Int              @id
+  schoolCode      String?
+  SchoolConfig    SchoolConfig?    @relation(fields: [schoolCode], references: [schoolCode], onDelete: NoAction, onUpdate: NoAction)
+  SchoolYearModel SchoolYearModel? @relation(fields: [yearId], references: [yearId], onDelete: NoAction, onUpdate: NoAction)
+  // StudentModel    Student?         @relation(name: "student_recognition", fields: [studentId], references: [studentId], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model StudentSchool {
+  personId       Int       @id
+  status         String?
+  substatus      String?
+  enrollDate     DateTime?
+  withdrawDate   DateTime?
+  withdrawReason String?
+  graduationDate DateTime?
+  gradeLevel     String?
+  nextStatus     String?
+  nextSchoolCode String?
+  nextGradeLevel String?
+  Student        Student?  @relation("student_school", name: "student_school")
+}
+
+model StudentServiceHoursModel {
+  serviceHoursId    Int
+  personId          Int
+  description       String?
+  hours             Decimal?
+  date              DateTime?
+  note              String?
+  verifiedBy        String?
+  createdBy         Int?
+  Staff             Staff?            @relation(fields: [createdBy], references: [staffId], onDelete: NoAction, onUpdate: NoAction)
+  ServiceHoursModel ServiceHoursModel @relation(fields: [serviceHoursId], references: [serviceHoursId], onDelete: NoAction, onUpdate: NoAction)
+  Person            Person            @relation(fields: [personId], references: [personId], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([serviceHoursId, personId])
+}
+
+model SubStatusModel {
+  status       String?
+  schoolCode   String?
+  id           Int           @id
+  SchoolConfig SchoolConfig? @relation(fields: [schoolCode], references: [schoolCode], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model UserDefinedDataModel {
+  fieldId  Int
+  linkedId Int
+  data     String?
+  dataId   Int     @id
+}
+
+model UserDefinedFieldModel {
+  groupId    Int?
+  fieldName  String?
+  fieldType  Int?
+  fieldOrder Int?
+  listItems  Unsupported("json")?
+  fieldId    Int                  @id
+}
+
+model UserDefinedGroupModel {
+  groupType     String?
+  groupName     String?
+  groupOrder    Int?
+  districtWide  Int?
+  groupId       Int                  @id
+  schoolCode    String?
+  fieldList     Unsupported("json")?
+  securityLevel Int?
+  SchoolConfig  SchoolConfig?        @relation(fields: [schoolCode], references: [schoolCode], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model UserDefinedGroupSecurityItemModel {
+  id            Int @id
+  securityLevel Int
+}
+
+model UserDefinedGroupSecurityModel {
+  id             Int                  @id @default(autoincrement())
+  canEveryoneUse Int
+  group          Unsupported("json")?
+  person         Unsupported("json")?
+}

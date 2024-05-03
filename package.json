@@ -1,0 +1,37 @@
+{
+  "name": "renweb-sql",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "gen": "openapi-generator-cli generate -g mysql-schema -i ./FACTSAPI.yaml -o ./output/",
+    "types:generate": "openapi-typescript ./FACTSAPI.yaml -o src/facts.d.ts",
+    "start": "ts-node ./src/index.ts",
+    "format": "prettier --write .",
+    "lint": "eslint ."
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@openapitools/openapi-generator-cli": "^2.13.4",
+    "@prisma/client": "^5.13.0",
+    "dotenv": "^16.4.5",
+    "openapi-fetch": "^0.9.4",
+    "openapi-typescript": "^6.7.5",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "@types/uuid": "^9.0.8",
+    "esbuild": "^0.20.2",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.2.5",
+    "prettier-plugin-sql": "^0.18.0",
+    "prettier-plugin-tailwindcss": "^0.5.12",
+    "prisma": "^5.13.0",
+    "ts-node": "^10.9.2",
+    "tslib": "^2.6.2",
+    "typescript": "^5.4.5"
+  }
+}
