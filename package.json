@@ -3,6 +3,7 @@
 	"version": "1.0.0",
 	"description": "",
 	"main": "index.js",
+	"package-name": "git+https://<github_token>:x-oauth-basic@github.com/mrbakerjpg/<repo>.git",
 	"scripts": {
 		"gen": "openapi-generator-cli generate -g mysql-schema -i ./FACTSAPI.yaml -o ./output/",
 		"types:generate": "openapi-typescript ./FACTSAPI.yaml -o src/facts.d.ts",
